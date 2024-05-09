@@ -23,17 +23,20 @@ def roll_dice(num_rolls, dice=six_sided):
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
-    score_this_turn = 0
-    flag = False # a flag for dice outcome is a 1 : flag = True
-    while (num_rolls > 0):
+    score = 0
+    flag = False
+    while num_rolls > 0:
         score_this_roll = dice()
-        if score_this_roll != 1 and not flag: # "not flag" can make sure that call dice exactly num_rolls times
-            score_this_turn += score_this_roll
-        else:# Pig out
+        if score_this_roll != 1:
+            score = score_this_roll + score
+        else:
             flag = True
-            score_this_turn = 1
-        num_rolls -= 1
-    return score_this_turn
+        num_rolls -=1
+        
+    if flag:
+        return 1
+    else:
+        return score
     # END PROBLEM 1
 
 
@@ -173,16 +176,12 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
-    def over(score0, score1):
-        if score0 >= goal or score1 >= goal:
-            return True
-        
-    while not over(score0, score1):
+    while score0 < goal and score1 < goal:
         # calculate score due to who
         if who == 0:
             score0 = take_turn(strategy0(score0, score1), score1, dice) + score0
-            if over(score0, score1):
-                break
+            # call commentary function
+            say = say(score0, score1)
             # determine whether extra turns are required, and if function (extra_turn) returns True,do not change the 'who'
             if extra_turn(score0, score1):
                 continue
@@ -190,13 +189,12 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
                 who = other(who)
         else:
             score1 = take_turn(strategy1(score1, score0), score0, dice) + score1
-            if over(score0, score1):
-                break
+            say = say(score0, score1)
             if extra_turn(score1, score0):
                 continue
             else:
                 who = other(who)
-
+    
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
@@ -285,6 +283,20 @@ def announce_highest(who, last_score=0, running_high=0):
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    def say(score0, score1):
+        if who == 0:
+            if score0 - last_score > running_high:
+                print(score0 - last_score, 'point(s)!', 'The most yet for Player', who)
+                return announce_highest(who, score0, score0 - last_score)
+            else:
+                return announce_highest(who, score0, running_high)
+        else:      
+            if score1 - last_score > running_high:
+                print(score1 - last_score, 'point(s)!', 'The most yet for Player', who)
+                return announce_highest(who, score1, score1 - last_score)
+            else:
+                return announce_highest(who, score1, running_high)
+    return say
     # END PROBLEM 7
 
 
