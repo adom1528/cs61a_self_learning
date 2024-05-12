@@ -337,10 +337,19 @@ def make_averaged(original_function, trials_count=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def calculate_average(*args):
+        sum = 0
+        count = trials_count
+        while count > 0:
+            sum += original_function(*args)
+            count -= 1
+        average = sum / trials_count
+        return average
+    return calculate_average
     # END PROBLEM 8
 
 
-def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
+def max_scoring_num_rolls(dice=six_sided, trials_count=10000):
     """Return the number of dice (1 to 10) that gives the highest average turn
     score by calling roll_dice with the provided DICE over TRIALS_COUNT times.
     Assume that the dice always return positive outcomes.
@@ -351,6 +360,16 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    num_rolls = 1
+    max_average_score = 0
+    get_average = make_averaged(roll_dice, trials_count)
+    while num_rolls <= 10:
+        average_score = get_average(num_rolls, dice)
+        if average_score > max_average_score:
+            max_average_score = average_score
+            max_rolls = num_rolls
+        num_rolls += 1
+    return max_rolls
     # END PROBLEM 9
 
 
@@ -363,7 +382,7 @@ def winner(strategy0, strategy1):
         return 1
 
 
-def average_win_rate(strategy, baseline=always_roll(6)):
+def average_win_rate(strategy, baseline=always_roll(4)):
     """Return the average win rate of STRATEGY against BASELINE. Averages the
     winrate when starting the game as player 0 and as player 1.
     """
@@ -375,20 +394,20 @@ def average_win_rate(strategy, baseline=always_roll(6)):
 
 def run_experiments():
     """Run a series of strategy experiments and report results."""
-    if True:  # Change to False when done finding max_scoring_num_rolls
+    if False:  # Change to False when done finding max_scoring_num_rolls
         six_sided_max = max_scoring_num_rolls(six_sided)
         print('Max scoring num rolls for six-sided dice:', six_sided_max)
 
-    if False:  # Change to True to test always_roll(8)
-        print('always_roll(8) win rate:', average_win_rate(always_roll(8)))
+    if True:  # Change to True to test always_roll(3)
+        print('always_roll(3) win rate:', average_win_rate(always_roll(3)))
 
-    if False:  # Change to True to test bacon_strategy
+    if True:  # Change to True to test bacon_strategy
         print('bacon_strategy win rate:', average_win_rate(bacon_strategy))
 
-    if False:  # Change to True to test extra_turn_strategy
+    if True:  # Change to True to test extra_turn_strategy
         print('extra_turn_strategy win rate:', average_win_rate(extra_turn_strategy))
 
-    if False:  # Change to True to test final_strategy
+    if True:  # Change to True to test final_strategy
         print('final_strategy win rate:', average_win_rate(final_strategy))
 
     "*** You may add additional experiments as you wish ***"
@@ -400,7 +419,10 @@ def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    if free_bacon(opponent_score) >= cutoff:
+        return 0
+    else:
+        return num_rolls
     # END PROBLEM 10
 
 
@@ -410,7 +432,11 @@ def extra_turn_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    if extra_turn(score + free_bacon(opponent_score), opponent_score):
+        return 0
+    else:
+        return bacon_strategy(score, opponent_score, cutoff, num_rolls)
+        
     # END PROBLEM 11
 
 
@@ -420,7 +446,14 @@ def final_strategy(score, opponent_score):
     *** YOUR DESCRIPTION HERE ***
     """
     # BEGIN PROBLEM 12
-    return 6  # Replace this statement
+    if score > 80:
+        return extra_turn_strategy(score, opponent_score, 8, 4)
+    elif score > 90:
+        return extra_turn_strategy(score, opponent_score, 10, 3)
+    elif score > 95:
+        return bacon_strategy(score, opponent_score, 5, 2)
+    else:
+        return extra_turn_strategy(score, opponent_score, 8, 6)
     # END PROBLEM 12
 
 ##########################
