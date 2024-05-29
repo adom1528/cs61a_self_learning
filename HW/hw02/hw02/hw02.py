@@ -162,9 +162,29 @@ def count_coins(total):
     True
     """
     "*** YOUR CODE HERE ***"
-    #def helper(one_part, anothor_part):
+    def helper(change, coin):
+        if change == 0:
+            return 1
+        elif change < 0:
+            return 0
+        elif coin == None:
+            return 0
+        else:
+            with_coin = helper(change - coin, coin)
+            without_coin = helper(change, next_largest_coin(coin))
+            return with_coin + without_coin
+            
+    return helper(total, 1)
         
-    
+def partition(n, m):
+    if n == 0:
+        return 1
+    elif n < 0:
+        return 0
+    elif m == 0:
+        return 0
+    else:
+        return partition(n - m, m) + partition(n, m - 1)
 
 
 from operator import sub, mul
